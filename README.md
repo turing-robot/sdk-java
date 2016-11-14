@@ -1,5 +1,7 @@
 # sdk-java
 > 图灵机器人SDK java版
+##下载
+ * https://github.com/turing-robot/sdk-java/releases
 ##依赖包
   * maven项目
     * 见pom.xml
@@ -7,3 +9,4 @@
     * commons-lang-2.6
     * commons-codec-1.10
     * jackson-databind-2.8.4
+
