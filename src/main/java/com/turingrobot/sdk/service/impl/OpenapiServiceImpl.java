@@ -63,7 +63,7 @@ public class OpenapiServiceImpl implements OpenapiService {
                 throw new RuntimeException("encode error", e);
             }
             param.remove("info");
-//            param.remove("userid");
+            param.remove("userid");
 
             param.put("timestamp", timeMillis);
         } else {
