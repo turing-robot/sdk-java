@@ -8,9 +8,16 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -51,19 +58,13 @@ public class OpenapiServiceImpl implements OpenapiService {
             //加密
             long timeMillis = System.currentTimeMillis();
             try {
-                String aesKey = DigestUtils.md5Hex(openapiConfig.getSecretKey() + timeMillis + openapiConfig.getApikey());
-                SecretKeySpec secretKeySpec = new SecretKeySpec(DigestUtils.md5(aesKey), "AES");
-                System.out.println(new String(Base64.encodeBase64(secretKeySpec.getEncoded())));
-                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-                cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, new IvParameterSpec(new byte[]{0, 0, 0, 0, 0, 0, 0, 0,
-                        0, 0, 0, 0, 0, 0, 0, 0}));
-                byte[] encryptBytes = cipher.doFinal(JsonUtils.toJson(param).getBytes());
-                param.put("data", new String(Base64.encodeBase64(encryptBytes), "UTF-8"));
+                param.put("data", encoder(param, timeMillis));
             } catch (Exception e) {
                 throw new RuntimeException("encode error", e);
             }
             param.remove("info");
-            param.remove("userid");
+//            param.remove("userid");
+
             param.put("timestamp", timeMillis);
         } else {
             //普通
@@ -74,17 +75,21 @@ public class OpenapiServiceImpl implements OpenapiService {
         return JsonUtils.toObject(WebUtils.post("http://www.tuling123.com/openapi/api", JsonUtils.toJson(param)), LinkedHashMap.class);
     }
 
+    private String encoder(Map<String, Object> param, long timeMillis) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
+        String aesKey = DigestUtils.md5Hex(openapiConfig.getSecretKey() + timeMillis + openapiConfig.getApikey());
+        SecretKeySpec secretKeySpec = new SecretKeySpec(DigestUtils.md5(aesKey), "AES");
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, new IvParameterSpec(new byte[]{0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0}));
+        byte[] bytes = cipher.doFinal(JsonUtils.toJson(param).getBytes());
+        return new String(Base64.encodeBase64(bytes), "UTF-8");
+    }
+
     public OpenapiConfig getOpenapiConfig() {
         return openapiConfig;
     }
 
     public void setOpenapiConfig(OpenapiConfig openapiConfig) {
         this.openapiConfig = openapiConfig;
-    }
-
-    public static void main(String[] args) throws Exception {
-        OpenapiService openapiService = new OpenapiServiceImpl(new OpenapiConfig("2d3c293c7a9641948017b2333d3321c9","22c5daa34395b3cb"));
-        Map<String, Object> webapi = openapiService.webapi("你好啊", "1111");
-        System.out.println(JsonUtils.toJson(webapi));
     }
 }
