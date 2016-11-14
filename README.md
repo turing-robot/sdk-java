@@ -26,7 +26,9 @@
         
         OpenapiService openapiService = new OpenapiServiceImpl(openapiConfig);
         //请求api
-        Map<String, Object> result = openapiService.webapi("你好", "123213");
+        String userid = "123456";
+        String info = "你好";
+        Map<String, Object> result = openapiService.webapi(info, userid);
         //打印结果
         System.out.println(JsonUtils.toJson(result));
    ```
