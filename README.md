@@ -7,7 +7,24 @@
   
 ## 依赖包
   * maven项目
-    * 见pom.xml
+  
+    ```xml
+     <dependency>
+         <groupId>commons-lang</groupId>
+         <artifactId>commons-lang</artifactId>
+         <version>2.6</version>
+     </dependency>
+     <dependency>
+         <groupId>commons-codec</groupId>
+         <artifactId>commons-codec</artifactId>
+         <version>1.10</version>
+     </dependency>
+     <dependency>
+         <groupId>com.fasterxml.jackson.core</groupId>
+         <artifactId>jackson-databind</artifactId>
+         <version>2.8.4</version>
+     </dependency>
+    ```
   * 普通项目
     * commons-lang-2.6
     * commons-codec-1.10
