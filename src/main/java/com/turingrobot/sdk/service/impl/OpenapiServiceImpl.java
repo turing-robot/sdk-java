@@ -1,6 +1,7 @@
 package com.turingrobot.sdk.service.impl;
 
-import com.turingrobot.sdk.config.OpenapiConfig;
+import com.turingrobot.sdk.TuringRobotSettingAwareImpl;
+import com.turingrobot.sdk.config.TuringRobotSetting;
 import com.turingrobot.sdk.service.OpenapiService;
 import com.turingrobot.sdk.util.JsonUtils;
 import com.turingrobot.sdk.util.WebUtils;
@@ -22,39 +23,37 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Service - openapi语义解析接口默认实现
+ * Service - 聊天接口
  *
  * @author TURINGROBOT Team
  * @version 1.0
  */
-public class OpenapiServiceImpl implements OpenapiService {
+public class OpenapiServiceImpl extends TuringRobotSettingAwareImpl implements OpenapiService {
 
-    private OpenapiConfig openapiConfig;
-
-    public OpenapiServiceImpl(OpenapiConfig openapiConfig) {
-        this.openapiConfig = openapiConfig;
+    public OpenapiServiceImpl(TuringRobotSetting turingRobotSetting) {
+        super(turingRobotSetting);
     }
 
     @Override
-    public Map<String, Object> webapi(String cmd, String userid) {
+    public Map webapi(String cmd, String userid) {
         return webapi(cmd, userid, null);
     }
 
     @Override
-    public Map<String, Object> webapi(String cmd, String userid, String location) {
+    public Map webapi(String cmd, String userid, String location) {
         //本地参数校验
         if (cmd == null || StringUtils.isBlank(cmd)) {
-            LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+            Map<String, Object> result = new LinkedHashMap<>();
             result.put("code", 40002);
             result.put("text", "请求内容info为空");
             return result;
         }
         //拼装请求参数
         LinkedHashMap<String, Object> param = new LinkedHashMap<>();
-        param.put("key", openapiConfig.getApikey());
+        param.put("key", turingRobotSetting.getApikey());
         param.put("info", cmd);
         param.put("userid", userid);
-        if (openapiConfig.getSecretSwitch()) {
+        if (turingRobotSetting.getSecretSwitch()) {
             //加密
             long timeMillis = System.currentTimeMillis();
             try {
@@ -76,20 +75,12 @@ public class OpenapiServiceImpl implements OpenapiService {
     }
 
     private String encoder(Map<String, Object> param, long timeMillis) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
-        String aesKey = DigestUtils.md5Hex(openapiConfig.getSecretKey() + timeMillis + openapiConfig.getApikey());
+        String aesKey = DigestUtils.md5Hex(turingRobotSetting.getSecretKey() + timeMillis + turingRobotSetting.getApikey());
         SecretKeySpec secretKeySpec = new SecretKeySpec(DigestUtils.md5(aesKey), "AES");
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, new IvParameterSpec(new byte[]{0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0}));
         byte[] bytes = cipher.doFinal(JsonUtils.toJson(param).getBytes());
         return new String(Base64.encodeBase64(bytes), "UTF-8");
-    }
-
-    public OpenapiConfig getOpenapiConfig() {
-        return openapiConfig;
-    }
-
-    public void setOpenapiConfig(OpenapiConfig openapiConfig) {
-        this.openapiConfig = openapiConfig;
     }
 }

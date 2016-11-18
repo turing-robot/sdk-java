@@ -32,20 +32,47 @@
     
 ## 使用说明
  * 示例代码
- 
-   ```java
-        String apikey = "f0b3264bc2414769bbc96b0eae207e9e";//机器人apikey
-        //不加密
-        OpenapiConfig openapiConfig = new OpenapiConfig(apikey);
-        //加密
-        String secret = "22c5daa34395b3cb";//机器人加密密匙
-        OpenapiConfig openapiConfig = new OpenapiConfig(apikey, secret);
-        
-        OpenapiService openapiService = new OpenapiServiceImpl(openapiConfig);
-        //请求api
-        String userid = "123456";
-        String info = "你好";
-        Map<String, Object> result = openapiService.webapi(info, userid);
-        //打印结果
-        System.out.println(JsonUtils.toJson(result));
-   ```
+    * 聊天接口
+    
+       ```java
+            //-----------------初始化--------------------
+            String apikey = "f0b3264bc2414769bbc96b0eae207e9e";//机器人apikey
+            //不加密
+            TuringRobotSetting turingRobotSetting = new TuringRobotSetting(apikey);
+            //加密
+            String secret = "22c5daa34395b3cb";//机器人加密密匙
+            TuringRobotSetting turingRobotSetting = new TuringRobotSetting(apikey, secret);
+            
+            OpenapiService openapiService = new OpenapiServiceImpl(turingRobotSetting);
+            
+            //----------------调用-------------------
+            //请求api
+            String userid = "123456";
+            String info = "你好";
+            Map<String, Object> result = openapiService.webapi(info, userid);
+            //打印结果
+            System.out.println(JsonUtils.toJson(result));
+       ```
+    * 知识库
+    
+         ```java
+            //-----------------初始化--------------------
+            TuringRobotSetting turingRobotSetting = new TuringRobotSetting("74c15b68baae4f1282395f04c2f4c764");
+            KnowledgeBaseSetting knowledgeBaseSetting = turingRobotSetting.getKnowledgeBaseSetting();//获取知识库配置对象
+            knowledgeBaseSetting.setSecretKey(SECRET_KEY);//设置知识库加密KEY
+            knowledgeBaseSetting.setSecretSwitch(true);//设置知识库加密开关
+            KnowledgeBaseService knowledgeBaseService = new KnowledgeBaseServiceImpl(turingRobotSetting);//生成接口调用类
+    
+            //----------------调用-------------------
+            Map result;
+            result = knowledgeBaseService.setMatch(50);//设置知识库匹配度
+            result = knowledgeBaseService.setSecretSwitch(true);//设置知识库加密开关
+            result = knowledgeBaseService.setSecretKey("D1AS5D61");//设置知识库加密KEY
+            result = knowledgeBaseService.setSecretSwitchAndSecretKey(true, "D1AS5D61");//设置知识库加密开关和加密KEY
+            result = knowledgeBaseService.add(new KnowledgeBase("a", "b"));//知识库添加
+            result = knowledgeBaseService.findByPageable(new Pageable());//知识库查找
+            result = knowledgeBaseService.findByPageable(new Pageable());//知识库查找
+            result = knowledgeBaseService.update(new KnowledgeBase("a", "b", "1"));//知识库修改
+            result = knowledgeBaseService.delete("123");//知识库删除
+            result = knowledgeBaseService.clear();//知识库清空
+         ```
