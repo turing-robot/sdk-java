@@ -76,3 +76,5 @@
             result = knowledgeBaseService.delete("123");//知识库删除
             result = knowledgeBaseService.clear();//知识库清空
          ```
+------------         
+注意：文档写的烂大家凑合看吧。。。源码里有注释，搭配使用味道更佳
